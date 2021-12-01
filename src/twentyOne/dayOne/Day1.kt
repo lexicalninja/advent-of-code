@@ -1,5 +1,6 @@
 package twentyOne.dayOne
 
+import twentyOne.listFromTxt
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -8,17 +9,15 @@ fun main(args: Array<String>) {
 }
 
 fun partOne() {
-    val depths = mutableListOf<Int>()
-    File("src/twentyOne/dayOne/input.txt").useLines { lines -> lines.forEach { depths.add(it.toInt()) } }
+    val depths = File("src/twentyOne/dayOne/input.txt").listFromTxt {it.toInt()}
     var count = 0
     depths.forEachIndexed { index, i -> if (index > 0 && depths[index - 1] < i) count++ }
     println(count)
 }
 
 fun partTwo() {
-    val depths = mutableListOf<Int>()
+    val depths = File("src/twentyOne/dayOne/input.txt").listFromTxt {it.toInt()}
     var count = 0
-    File("src/twentyOne/dayOne/input.txt").useLines { lines -> lines.forEach { depths.add(it.toInt()) } }
     val windows = depths.windowed(3, 1, false) { it.sum() }
     // ALTERNATE
 //    val count = depths.windowed(3, 1, false) { it.sum() }.zipWithNext { a, b -> if(b > a) 1 else 0 }.sum()
