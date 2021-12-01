@@ -19,7 +19,7 @@ fun partTwo() {
     val depths = mutableListOf<Int>()
     var count = 0
     File("src/twentyOne/dayOne/input.txt").useLines { lines -> lines.forEach { depths.add(it.toInt()) } }
-    val windows = depths.windowed(3, 1, false).map { it.sum() }
+    val windows = depths.windowed(3, 1, false) { it.sum() }
     windows.forEachIndexed { index, i -> if (index > 0 && windows[index - 1] < i) count++ }
     println(count)
 }
