@@ -9,14 +9,14 @@ fun main(args: Array<String>) {
 }
 
 fun partOne() {
-    val depths = File("src/twentyOne/dayOne/input.txt").listFromTxt {it.toInt()}
+    val depths = File("src/twentyOne/dayOne/input.txt").listFromTxt { it.toInt() }
     var count = 0
     depths.forEachIndexed { index, i -> if (index > 0 && depths[index - 1] < i) count++ }
     println(count)
 }
 
 fun partTwo() {
-    val depths = File("src/twentyOne/dayOne/input.txt").listFromTxt {it.toInt()}
+    val depths = File("src/twentyOne/dayOne/input.txt").listFromTxt { it.toInt() }
     var count = 0
     val windows = depths.windowed(3, 1, false) { it.sum() }
     // ALTERNATE
