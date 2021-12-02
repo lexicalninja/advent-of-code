@@ -1,7 +1,6 @@
 package twentyOne.dayTwo
 
 import java.io.File
-import kotlin.math.abs
 
 fun main(args: Array<String>) {
     partOne()
@@ -11,7 +10,7 @@ fun main(args: Array<String>) {
 fun partOne() {
     val position = Position()
     File("src/twentyOne/dayTwo/input.txt").useLines { lines -> lines.forEach { position.changePos(it) } }
-    println(abs(position.x * position.y))
+    println(position.x * position.y)
 }
 
 fun partTwo() {
@@ -25,8 +24,8 @@ data class Position(var x: Int = 0, var y: Int = 0) {
         command.split(" ").apply {
             when (first()) {
                 "forward" -> x += last().toInt()
-                "up" -> y += last().toInt()
-                "down" -> y -= last().toInt()
+                "up" -> y -= last().toInt()
+                "down" -> y += last().toInt()
             }
         }
     }
