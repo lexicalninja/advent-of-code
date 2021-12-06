@@ -8,80 +8,65 @@ import kotlin.math.min
 
 fun main(args: Array<String>) {
     partOne()
+    partTwo()
 }
 
 fun partOne() {
-    val array = MutableList(1000) { MutableList(1000) { 0 } }
-    val segments = mutableListOf<LineSegment>()
+    val map = MutableList(1000) { MutableList(1000) { 0 } }
     File("src/twentyOne/dayFive/input.txt").useLines { lines ->
         lines.forEach {
-            val a = it.split(" -> ")
-            val b = a.map { sub -> sub.split(",").toPoint() }
-            val newSegment = LineSegment(b[0], b[1])
-            if(newSegment.isVertical() || newSegment.isHorizontal()){
-                for (segment in segments) {
-                    val intersects = newSegment.intersectsWith(segment)
-                    intersects?.apply {
-                        this.forEach { pair ->
-                            array[pair.second][pair.first] = array[pair.second][pair.first] + 1
-                        }
-                    }
-                }
-                segments.add(newSegment)
-            }
+            val endPoints = it.split(" -> ").map { sub -> sub.split(",").toPoint() }
+            val newSegment = LineSegment(endPoints[0], endPoints[1])
+            markVents(newSegment, map)
         }
     }
-//    val answer = array.map { it.reduce{ acc: Int, i: Int -> if(i > 0) acc + 1 else 0 } }.sum()
-    val answer = array.sumOf { it.sum() }
-    println(answer)
+    var count = 0
+    map.forEach { count += it.filter { i -> i > 1 }.size }
+    println(count)
+}
+
+fun partTwo() {
+    val map = MutableList(1000) { MutableList(1000) { 0 } }
+    File("src/twentyOne/dayFive/input.txt").useLines { lines ->
+        lines.forEach {
+            val endPoints = it.split(" -> ").map { sub -> sub.split(",").toPoint() }
+            val newSegment = LineSegment(endPoints[0], endPoints[1])
+            markVents(newSegment, map, true)
+        }
+    }
+    var count = 0
+    map.forEach { count += it.filter { i -> i > 1 }.size }
+    println(count)
+}
+
+fun markVents(segment: LineSegment, array: MutableList<MutableList<Int>>, useDiagonal: Boolean = false) {
+    return when {
+        segment.isVertical() -> {
+            val x = segment.a.x
+            for (y in min(segment.a.y, segment.b.y)..max(segment.a.y, segment.b.y)) {
+                array[y][x] = array[y][x] + 1
+            }
+        }
+        segment.isHorizontal() -> {
+            val y = segment.a.y
+            for (x in min(segment.a.x, segment.b.x)..max(segment.a.x, segment.b.x)) {
+                array[y][x] = array[y][x] + 1
+            }
+        }
+        useDiagonal && segment.is45Degrees() -> {
+            val m = segment.getSlope()
+            val b = segment.a.y - segment.a.x * m
+            val rangeX = min(segment.a.x, segment.b.x)..max(segment.a.x, segment.b.x)
+            for (x in rangeX) {
+                val y = m * x + b
+                array[y][x] = array[y][x] + 1
+            }
+        }
+        else -> Unit
+    }
 }
 
 class LineSegment(val a: Point, val b: Point) {
-    fun intersectsWith(other: LineSegment): List<Pair<Int, Int>>? {
-        val dx1 = b.x - a.x
-        val dx2 = other.b.x - other.a.x
-        val dy1 = b.y - a.y
-        val dy2 = other.b.y - other.a.y
-        val dx3 = a.x - other.a.x
-        val dy3 = a.y - other.b.y
-        val det = dx1 * dy2 - dx2 * dy1
-        val det1 = dx1 * dy3 - dx3 * dy1
-        val det2 = dx2 * dy3 - dx3 * dy2
-        if (det == 0) {
-            //parallel, need to check for colinear
-            if (det1 == 0 || det2 == 0) {
-//                //colinear, check for overlap.
-                if (dx1 == 0 ) {
-                    val range1 = (min(a.y, b.y)..max(a.y,b.y)).toSet()
-                    val range2 = (min(other.a.y, other.b.y)..max(other.a.y, other.b.y)).toSet()
-                    val intersect = range1.intersect(range2)
-                    return intersect.map { Pair(a.x, it) }
-                }
-                if (dy1 == 0 ) {
-                    val range1 = (min(a.x, b.x)..max(a.x, b.x)).toSet()
-                    val range2 = (min(other.a.x, other.b.x)..max(other.a.x, other.b.x)).toSet()
-                    val intersect = range1.intersect(range2)
-                    return intersect.map { Pair(it, a.y) }
-                }
-            } else return null
-        }
-        if(dx1 == 0){
-            val rangeY = min(a.y, b.y)..max(a.y,b.y)
-            val rangeX = min(other.a.x, other.b.x)..max(other.a.x, other.b.x)
-            if(a.x in rangeX && other.a.y in rangeY) {
-                return listOf(Pair(a.x, other.a.y))
-            }
-        }
-        if(dy1 == 0) {
-            val rangeY = min(other.a.y, other.b.y)..max(other.a.y,other.b.y)
-            val rangeX = min(a.x, b.x)..max(a.x, b.x)
-            if(a.y in rangeY && other.a.x in rangeX) {
-                return listOf(Pair(other.a.x, a.y))
-            }
-        }
-        return null
-    }
-
     companion object {
         fun determinant(a: LineSegment, b: LineSegment): Int {
             val dx1 = a.b.x - a.a.x
@@ -94,7 +79,15 @@ class LineSegment(val a: Point, val b: Point) {
 
     fun isVertical() = a.x == b.x
     fun isHorizontal() = a.y == b.y
+    fun is45Degrees() = abs(getSlope()) == 1
+    fun getSlope() = (b.y - a.y) / (b.x - a.x)
 
+}
+
+fun <T> print2dArray(a: MutableList<MutableList<T>>): String {
+    var result = ""
+    a.forEach { result += "$it\n" }
+    return result
 }
 
 fun List<String>.toPoint(): Point {
@@ -103,3 +96,4 @@ fun List<String>.toPoint(): Point {
     }
     return Point(this[0].toInt(), this[1].toInt())
 }
+
