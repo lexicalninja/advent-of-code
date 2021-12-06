@@ -3,10 +3,8 @@ package twentyOne.dayFour
 import java.io.File
 
 fun main(args: Array<String>) {
+    partOne()
     partTwo()
-//    println(balls)
-//    println(cards.last())last
-
 }
 
 fun partOne() {
@@ -20,18 +18,21 @@ fun partOne() {
             } else {
                 if (it.isNotEmpty()) {
                     if (cards.isEmpty() || cards.last().isFull()) cards.add(BingoCard())
-                    cards.last().addRow(it.trim().split( " +".toRegex()).map { s -> s.toInt() }.toMutableList())
+
+                    cards.last().addRow(it.trim().split(" +".toRegex()).map { s -> s.toInt() }.toMutableList())
+
                     if (cards.last().isFull()) cards.last().transposeRows()
                 }
             }
             inputRow++
         }
     }
+
     while (balls.isNotEmpty()) {
         val ball = balls.removeAt(0)
-        cards.forEach{
+        cards.forEach {
             it.markCard(ball)
-            if(it.hasBingo()) {
+            if (it.hasBingo()) {
                 println(it.sumUncovered() * ball)
                 balls.clear()
             }
@@ -50,7 +51,7 @@ fun partTwo() {
             } else {
                 if (it.isNotEmpty()) {
                     if (cards.isEmpty() || cards.last().isFull()) cards.add(BingoCard())
-                    cards.last().addRow(it.trim().split( " +".toRegex()).map { s -> s.toInt() }.toMutableList())
+                    cards.last().addRow(it.trim().split(" +".toRegex()).map { s -> s.toInt() }.toMutableList())
                     if (cards.last().isFull()) cards.last().transposeRows()
                 }
             }
@@ -63,8 +64,8 @@ fun partTwo() {
         while (iterator.hasNext()) {
             val card = iterator.next()
             card.markCard(ball)
-            if(card.hasBingo()) {
-                if(cards.size  != 1){
+            if (card.hasBingo()) {
+                if (cards.size != 1) {
                     iterator.remove()
                 } else {
                     println(card.sumUncovered() * ball)
@@ -77,8 +78,7 @@ fun partTwo() {
 
 data class BingoCard(
     val rows: MutableList<MutableList<Int>> = mutableListOf(),
-    val cols: MutableList<MutableList<Int>> = MutableList(5) { MutableList(5) { 0 } }
-) {
+    val cols: MutableList<MutableList<Int>> = MutableList(5) { MutableList(5) { 0 } }) {
 
     fun addRow(row: MutableList<Int>) {
         if (!isFull()) {
@@ -99,7 +99,7 @@ data class BingoCard(
     fun markCard(ball: Int) {
         rows.forEachIndexed { i, ints ->
             ints.forEachIndexed { j, _ ->
-                if (rows[i][j] == ball){
+                if (rows[i][j] == ball) {
                     rows[i][j] = -1
                     cols[j][i] = -1
                     return
@@ -120,7 +120,7 @@ data class BingoCard(
     }
 
     fun sumUncovered(): Int {
-        return rows.map { it.filter { it > 0 }.sum() }.sum()
+        return rows.sumOf { it.filter { i -> i > 0 }.sum() }
     }
 
     override fun toString(): String {
