@@ -3,7 +3,7 @@ package twentyOne.dayFour
 import java.io.File
 
 fun main(args: Array<String>) {
-   partTwo()
+    partTwo()
 //    println(balls)
 //    println(cards.last())last
 
@@ -64,12 +64,14 @@ fun partTwo() {
             val card = iterator.next()
             card.markCard(ball)
             if(card.hasBingo()) {
-                iterator.remove()
-                break
+                if(cards.size  != 1){
+                    iterator.remove()
+                } else {
+                    println(card.sumUncovered() * ball)
+                    return
+                }
             }
         }
-
-        if (cards.size == 1) 
     }
 }
 
@@ -100,6 +102,7 @@ data class BingoCard(
                 if (rows[i][j] == ball){
                     rows[i][j] = -1
                     cols[j][i] = -1
+                    return
                 }
 
             }
